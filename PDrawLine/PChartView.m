@@ -81,10 +81,18 @@ static const NSInteger kPadding = 10;
 @synthesize drawsDataLines = _drawsDataLines;
 @synthesize drawsDataPoints = _drawsDataPoints;
 @synthesize data = _data;
+@synthesize xTextColor = _xTextColor;
+@synthesize yTextColor = _yTextColor;
+@synthesize gridLineColor = _gridLineColor;
+@synthesize sizePoint = _sizePoint;
 
 - (void)dealloc{
     self.xSteps = nil;
     self.ySteps = nil;
+    self.data = nil;
+    self.xTextColor = nil;
+    self.yTextColor = nil;
+    self.gridLineColor = nil;
 }
 
 - (id)initWithFrame:(CGRect)frame
@@ -98,6 +106,10 @@ static const NSInteger kPadding = 10;
         self.scaleFont = [UIFont systemFontOfSize:10.0];
         self.drawsDataPoints = YES;
         self.drawsDataLines  = YES;
+        self.xTextColor = [UIColor blackColor];
+        self.yTextColor = [UIColor blackColor];
+        self.gridLineColor = [UIColor colorWithWhite:0.9 alpha:1.0];
+        self.sizePoint = 4;
     }
     return self;
 }
@@ -128,12 +140,12 @@ static const NSInteger kPadding = 10;
     CGContextSetLineWidth(context, 1.0);
     NSUInteger yCnt = [self.ySteps count];
     for(NSString *step in self.ySteps) {
-        [[UIColor grayColor] set];
         CGFloat h = [self.scaleFont lineHeight];
         CGFloat y = yStart + heightPerStep * (yCnt - 1 - i);
+        [self.yTextColor set];
         [step drawInRect:CGRectMake(yStart, y - h / 2, self.yAxisLabelsWidth - 6, h) withFont:self.scaleFont lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentRight];
         
-        [[UIColor colorWithWhite:0.9 alpha:1.0] set];
+        [self.gridLineColor set];
         CGContextSetLineDash(context, 0, dashedPattern, 2);
         CGContextMoveToPoint(context, xStart, round(y) + 0.5);
         CGContextAddLineToPoint(context, self.bounds.size.width - kPadding, round(y) + 0.5);
@@ -146,15 +158,15 @@ static const NSInteger kPadding = 10;
     if(xCnt > 1) {
         CGFloat widthPerStep = availableWidth / (xCnt - 1);
         
-        [[UIColor grayColor] set];
         for(NSUInteger i = 0; i < xCnt; ++i) {
             CGFloat x = xStart + widthPerStep * (xCnt - 1 - i);
             CGFloat h = [self.scaleFont lineHeight];
-            CGFloat w = self.yAxisLabelsWidth - 6;
+            CGFloat w = self.yAxisLabelsWidth - 4;
             NSString  *step = [self.xSteps objectAtIndex:i];
+            [self.xTextColor set];
             [step drawInRect:CGRectMake(x-w/2, yStart + availableHeight+2, w, h) withFont:self.scaleFont lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentRight];
             
-            [[UIColor colorWithWhite:0.9 alpha:1.0] set];
+            [self.gridLineColor set];
             CGContextMoveToPoint(context, round(x) + 0.5, kPadding);
             CGContextAddLineToPoint(context, round(x) + 0.5, yStart + availableHeight);
             CGContextStrokePath(context);
@@ -179,20 +191,15 @@ static const NSInteger kPadding = 10;
                                   xStart + round(((datItem.x - data.xMin) / xRangeLen) * availableWidth),
                                   yStart + round((1.0 - (datItem.y - self.yMin) / yRangeLen) * availableHeight));
                 for(NSUInteger i = 1; i < data.itemCount; ++i) {
-                    LineDataItem *datItem = data.getData(i);
+                    LineDataItem *item = data.getData(i);
                     CGPathAddLineToPoint(path, NULL,
-                                         xStart + round(((datItem.x - data.xMin) / xRangeLen) * availableWidth),
-                                         yStart + round((1.0 - (datItem.y - self.yMin) / yRangeLen) * availableHeight));
+                                         xStart + round(((item.x - data.xMin) / xRangeLen) * availableWidth),
+                                         yStart + round((1.0 - (item.y - self.yMin) / yRangeLen) * availableHeight));
                 }
                 
                 CGContextAddPath(context, path);
-                CGContextSetStrokeColorWithColor(context, [self.backgroundColor CGColor]);
-                CGContextSetLineWidth(context, 5);
-                CGContextStrokePath(context);
-                
-                CGContextAddPath(context, path);
                 CGContextSetStrokeColorWithColor(context, [data.color CGColor]);
-                CGContextSetLineWidth(context, 2);
+                CGContextSetLineWidth(context, 1.5);
                 CGContextStrokePath(context);
                 
                 CGPathRelease(path);
@@ -205,12 +212,10 @@ static const NSInteger kPadding = 10;
                 LineDataItem *datItem = data.getData(i);
                 CGFloat xVal = xStart + round((xRangeLen == 0 ? 0.5 : ((datItem.x - data.xMin) / xRangeLen)) * availableWidth);
                 CGFloat yVal = yStart + round((1.0 - (datItem.y - self.yMin) / yRangeLen) * availableHeight);
-                [self.backgroundColor setFill];
-                CGContextFillEllipseInRect(context, CGRectMake(xVal - 4, yVal - 4, 8, 8));
                 [data.color setFill];
-                CGContextFillEllipseInRect(context, CGRectMake(xVal - 3, yVal - 3, 6, 6));
+                CGContextFillEllipseInRect(context, CGRectMake(xVal - self.sizePoint/2, yVal - self.sizePoint/2, self.sizePoint, self.sizePoint));
                 [[UIColor whiteColor] setFill];
-                CGContextFillEllipseInRect(context, CGRectMake(xVal - 2, yVal - 2, 4, 4));
+                CGContextFillEllipseInRect(context, CGRectMake(xVal - self.sizePoint/4, yVal - self.sizePoint/4, self.sizePoint/2, self.sizePoint/2));
             } // for
         } // draw data points
     }
