@@ -30,10 +30,32 @@
 	// Do any additional setup after loading the view.
     self.title = @"Chart";
     
+    LineData  *data = [[LineData alloc] init];
+    data.xMin = 1;
+    data.xMax = 24;
+    data.title = @"The title for the legend";
+    data.color = [UIColor redColor];
+    data.itemCount = 10;
+    
+    NSMutableArray *vals = [NSMutableArray new];
+    for(NSUInteger i = 0; i < data.itemCount; ++i)
+        [vals addObject:@((rand() / (float)RAND_MAX) * (31 - 1) + 1)];
+    [vals sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+        return [obj1 compare:obj2];
+    }];
+    data.getData = ^(NSUInteger item) {
+        float x = [vals[item] floatValue];
+        float y = powf(2, x / 7);
+        NSString *label1 = [NSString stringWithFormat:@"%lu", (unsigned long)item];
+        NSString *label2 = [NSString stringWithFormat:@"%f", y];
+        return [LineDataItem dataItemWithX:x y:y xLabel:label1 dataLabel:label2];
+    };
+    
     self.chartView.yMin = 0;
     self.chartView.yMax = 6;
     self.chartView.ySteps = @[@"0.0",@"1.0",@"2.0",@"3.0",@"4.0",@"5.0",@"6.0",@"7.0",@"8.0",@"9.0",@"10.0"];
     self.chartView.xSteps = @[@"",@"20.00",@"16.00",@"12.00",@"8.00",@"4.00",@""];
+    self.chartView.data = @[data];
     [self.containerView addSubview:self.chartView];
 }
 
