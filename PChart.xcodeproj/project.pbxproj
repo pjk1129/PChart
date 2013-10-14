@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		85095794180BC2B4005D5562 /* PChartView.m in Sources */ = {isa = PBXBuildFile; fileRef = 85095793180BC2B4005D5562 /* PChartView.m */; };
+		85095798180BC323005D5562 /* PUUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 85095797180BC323005D5562 /* PUUtil.m */; };
+		8509579C180BC372005D5562 /* NSArray+Expand.m in Sources */ = {isa = PBXBuildFile; fileRef = 8509579B180BC372005D5562 /* NSArray+Expand.m */; };
 		9383B76C1809180F002B2C04 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9383B76B1809180F002B2C04 /* Foundation.framework */; };
 		9383B76E1809180F002B2C04 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9383B76D1809180F002B2C04 /* CoreGraphics.framework */; };
 		9383B7701809180F002B2C04 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9383B76F1809180F002B2C04 /* UIKit.framework */; };
@@ -39,6 +42,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		85095792180BC2B4005D5562 /* PChartView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PChartView.h; sourceTree = "<group>"; };
+		85095793180BC2B4005D5562 /* PChartView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PChartView.m; sourceTree = "<group>"; };
+		85095796180BC323005D5562 /* PUUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PUUtil.h; sourceTree = "<group>"; };
+		85095797180BC323005D5562 /* PUUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PUUtil.m; sourceTree = "<group>"; };
+		8509579A180BC372005D5562 /* NSArray+Expand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+Expand.h"; sourceTree = "<group>"; };
+		8509579B180BC372005D5562 /* NSArray+Expand.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+Expand.m"; sourceTree = "<group>"; };
 		9383B7681809180F002B2C04 /* PChart.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PChart.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9383B76B1809180F002B2C04 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		9383B76D1809180F002B2C04 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -89,6 +98,33 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		85095795180BC309005D5562 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				85095796180BC323005D5562 /* PUUtil.h */,
+				85095797180BC323005D5562 /* PUUtil.m */,
+			);
+			path = Utilities;
+			sourceTree = SOURCE_ROOT;
+		};
+		85095799180BC34E005D5562 /* Expand */ = {
+			isa = PBXGroup;
+			children = (
+				8509579A180BC372005D5562 /* NSArray+Expand.h */,
+				8509579B180BC372005D5562 /* NSArray+Expand.m */,
+			);
+			path = Expand;
+			sourceTree = SOURCE_ROOT;
+		};
+		85BAA32718093799004AD3D8 /* PDrawLine */ = {
+			isa = PBXGroup;
+			children = (
+				85095792180BC2B4005D5562 /* PChartView.h */,
+				85095793180BC2B4005D5562 /* PChartView.m */,
+			);
+			path = PDrawLine;
+			sourceTree = SOURCE_ROOT;
+		};
 		9383B75F1809180F002B2C04 = {
 			isa = PBXGroup;
 			children = (
@@ -122,6 +158,9 @@
 		9383B7711809180F002B2C04 /* PChart */ = {
 			isa = PBXGroup;
 			children = (
+				85095799180BC34E005D5562 /* Expand */,
+				85095795180BC309005D5562 /* Utilities */,
+				85BAA32718093799004AD3D8 /* PDrawLine */,
 				9383B77A1809180F002B2C04 /* AppDelegate.h */,
 				9383B77B1809180F002B2C04 /* AppDelegate.m */,
 				9383B7A7180919AF002B2C04 /* ChartViewController.h */,
@@ -276,8 +315,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				85095798180BC323005D5562 /* PUUtil.m in Sources */,
 				9383B77C1809180F002B2C04 /* AppDelegate.m in Sources */,
 				9383B7A9180919AF002B2C04 /* ChartViewController.m in Sources */,
+				85095794180BC2B4005D5562 /* PChartView.m in Sources */,
+				8509579C180BC372005D5562 /* NSArray+Expand.m in Sources */,
 				9383B7781809180F002B2C04 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -475,6 +517,7 @@
 				9383B7961809180F002B2C04 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		9383B7971809180F002B2C04 /* Build configuration list for PBXNativeTarget "PChartTests" */ = {
 			isa = XCConfigurationList;
@@ -483,6 +526,7 @@
 				9383B7991809180F002B2C04 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
