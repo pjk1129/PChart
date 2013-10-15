@@ -8,6 +8,8 @@
 
 #import "PChartView.h"
 #import "NSArray+Expand.h"
+#import "UIKit+DrawingHelpers.h"
+#import <CoreGraphics/CoreGraphics.h>
 
 #ifdef DEBUG
 #define PCVLog(xx, ...)  NSLog(@"%s(%d): " xx, __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__)
@@ -68,23 +70,57 @@
 static const NSInteger kXAxisSpace = 15;
 static const NSInteger kPadding = 10;
 
-@interface PChartView ()
+#define COLORPADDING 15
+#define kLegendPADDING 5
+
+@implementation LegendView
+
+- (void)drawRect:(CGRect)rect {
+    CGContextRef c = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(c, [[UIColor colorWithWhite:0.0 alpha:0.1] CGColor]);
+    CGContextFillRoundedRect(c, self.bounds, 7);
+    
+    
+    CGFloat y = 0;
+    for(NSString *title in self.titles) {
+        UIColor *color = [self.colors objectForKey:title];
+        if(color) {
+            [color setFill];
+            CGContextFillEllipseInRect(c, CGRectMake(kLegendPADDING + 2, kLegendPADDING + round(y) + self.titlesFont.xHeight / 2 + 1, 6, 6));
+        }
+        [[UIColor whiteColor] set];
+        [title drawAtPoint:CGPointMake(COLORPADDING + kLegendPADDING, y + kLegendPADDING + 1) withFont:self.titlesFont];
+        [[UIColor blackColor] set];
+        [title drawAtPoint:CGPointMake(COLORPADDING + kLegendPADDING, y + kLegendPADDING) withFont:self.titlesFont];
+        y += [self.titlesFont lineHeight];
+    }
+}
+
+- (UIFont *)titlesFont {
+    if(_titlesFont == nil)
+        _titlesFont = [UIFont boldSystemFontOfSize:10];
+    return _titlesFont;
+}
+
+- (CGSize)sizeThatFits:(CGSize)size {
+    CGFloat h = [self.titlesFont lineHeight] * [self.titles count];
+    CGFloat w = 0;
+    for(NSString *title in self.titles) {
+        CGSize s = [title sizeWithFont:self.titlesFont];
+        w = MAX(w, s.width);
+    }
+    return CGSizeMake(COLORPADDING + w + 2 * kLegendPADDING, h + 2 * kLegendPADDING);
+}
 
 @end
 
+@interface PChartView ()
+
+@property (nonatomic, retain) LegendView   *legendView;
+@end
+
 @implementation PChartView
-@synthesize yMin = _yMin;
-@synthesize yMax = _yMax;
-@synthesize xSteps = _xSteps;
-@synthesize ySteps = _ySteps;
-@synthesize scaleFont = _scaleFont;
-@synthesize drawsDataLines = _drawsDataLines;
-@synthesize drawsDataPoints = _drawsDataPoints;
-@synthesize data = _data;
-@synthesize xTextColor = _xTextColor;
-@synthesize yTextColor = _yTextColor;
-@synthesize gridLineColor = _gridLineColor;
-@synthesize sizePoint = _sizePoint;
+
 
 - (void)dealloc{
     self.xSteps = nil;
@@ -93,6 +129,7 @@ static const NSInteger kPadding = 10;
     self.xTextColor = nil;
     self.yTextColor = nil;
     self.gridLineColor = nil;
+    self.legendView = nil;
 }
 
 - (id)initWithFrame:(CGRect)frame
@@ -110,13 +147,22 @@ static const NSInteger kPadding = 10;
         self.yTextColor = [UIColor blackColor];
         self.gridLineColor = [UIColor colorWithWhite:0.9 alpha:1.0];
         self.sizePoint = 4;
+        
+        [self addSubview:self.legendView];
     }
     return self;
 }
 
 - (void)layoutSubviews
 {
+    [super layoutSubviews];
+    CGRect r = self.legendView.frame;
+    r.origin.x = self.frame.size.width - self.legendView.frame.size.width - 3 - kPadding;
+    r.origin.y = 3 + kPadding;
+    self.legendView.frame = r;
     
+    [self bringSubviewToFront:self.legendView];
+
 }
 
 - (void)drawRect:(CGRect)rect
@@ -221,6 +267,25 @@ static const NSInteger kPadding = 10;
     }
 }
 
+
+#pragma mark - Touch Event
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+
+}
+
+
 #pragma mark - setter
 - (void)setData:(NSArray *)data {
     if(data != _data) {
@@ -230,14 +295,24 @@ static const NSInteger kPadding = 10;
             [titles addObject:dat.title];
             [colors setObject:dat.color forKey:dat.title];
         }
-//        self.legendView.titles = titles;
-//        self.legendView.colors = colors;
+        self.legendView.titles = titles;
+        self.legendView.colors = colors;
         
         _data = data;
         
         [self setNeedsLayout];
         [self setNeedsDisplay];
     }
+}
+
+#pragma mark - getter
+- (LegendView *)legendView{
+    if (!_legendView) {
+        _legendView = [[LegendView alloc] initWithFrame:CGRectMake(CGRectGetWidth(self.frame) - 50 - 10, 10, 50, 30)];
+        _legendView.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
+        _legendView.backgroundColor = [UIColor clearColor];
+    }
+    return _legendView;
 }
 
 #pragma mark - Helper methods

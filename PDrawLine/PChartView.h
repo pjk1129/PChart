@@ -39,6 +39,16 @@ typedef LineDataItem *(^LineChartDataGetter)(NSUInteger item);
 @end
 
 
+//图例说明
+@interface LegendView : UIView
+
+@property (nonatomic, retain) UIFont *titlesFont;
+@property (nonatomic, retain) NSArray *titles;
+@property (nonatomic, retain) NSDictionary *colors; // maps titles to UIColors
+
+@end
+
+
 @interface PChartView : UIView
 
 @property (nonatomic, assign) CGFloat yMin;

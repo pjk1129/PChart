@@ -30,6 +30,10 @@
 		9383B7A5180918B6002B2C04 /* icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 9383B79F180918B6002B2C04 /* icon@2x.png */; };
 		9383B7A6180918B6002B2C04 /* icon_120.png in Resources */ = {isa = PBXBuildFile; fileRef = 9383B7A0180918B6002B2C04 /* icon_120.png */; };
 		9383B7A9180919AF002B2C04 /* ChartViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9383B7A8180919AF002B2C04 /* ChartViewController.m */; };
+		93CCECC8180CDCF9009F6884 /* InnerShadowDrawing.m in Sources */ = {isa = PBXBuildFile; fileRef = 93CCECC1180CDCF9009F6884 /* InnerShadowDrawing.m */; };
+		93CCECC9180CDCF9009F6884 /* UIColor+HelperAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 93CCECC3180CDCF9009F6884 /* UIColor+HelperAdditions.m */; };
+		93CCECCA180CDCF9009F6884 /* UIImage+Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 93CCECC5180CDCF9009F6884 /* UIImage+Additions.m */; };
+		93CCECCB180CDCF9009F6884 /* UIKit+DrawingHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = 93CCECC7180CDCF9009F6884 /* UIKit+DrawingHelpers.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +79,14 @@
 		9383B7A0180918B6002B2C04 /* icon_120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_120.png; sourceTree = "<group>"; };
 		9383B7A7180919AF002B2C04 /* ChartViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChartViewController.h; sourceTree = "<group>"; };
 		9383B7A8180919AF002B2C04 /* ChartViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChartViewController.m; sourceTree = "<group>"; };
+		93CCECC0180CDCF9009F6884 /* InnerShadowDrawing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InnerShadowDrawing.h; sourceTree = "<group>"; };
+		93CCECC1180CDCF9009F6884 /* InnerShadowDrawing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InnerShadowDrawing.m; sourceTree = "<group>"; };
+		93CCECC2180CDCF9009F6884 /* UIColor+HelperAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+HelperAdditions.h"; sourceTree = "<group>"; };
+		93CCECC3180CDCF9009F6884 /* UIColor+HelperAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+HelperAdditions.m"; sourceTree = "<group>"; };
+		93CCECC4180CDCF9009F6884 /* UIImage+Additions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Additions.h"; sourceTree = "<group>"; };
+		93CCECC5180CDCF9009F6884 /* UIImage+Additions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Additions.m"; sourceTree = "<group>"; };
+		93CCECC6180CDCF9009F6884 /* UIKit+DrawingHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIKit+DrawingHelpers.h"; sourceTree = "<group>"; };
+		93CCECC7180CDCF9009F6884 /* UIKit+DrawingHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIKit+DrawingHelpers.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +125,14 @@
 		85095799180BC34E005D5562 /* Expand */ = {
 			isa = PBXGroup;
 			children = (
+				93CCECC0180CDCF9009F6884 /* InnerShadowDrawing.h */,
+				93CCECC1180CDCF9009F6884 /* InnerShadowDrawing.m */,
+				93CCECC2180CDCF9009F6884 /* UIColor+HelperAdditions.h */,
+				93CCECC3180CDCF9009F6884 /* UIColor+HelperAdditions.m */,
+				93CCECC4180CDCF9009F6884 /* UIImage+Additions.h */,
+				93CCECC5180CDCF9009F6884 /* UIImage+Additions.m */,
+				93CCECC6180CDCF9009F6884 /* UIKit+DrawingHelpers.h */,
+				93CCECC7180CDCF9009F6884 /* UIKit+DrawingHelpers.m */,
 				8509579A180BC372005D5562 /* NSArray+Expand.h */,
 				8509579B180BC372005D5562 /* NSArray+Expand.m */,
 				8509579E180C1483005D5562 /* NSDate+Expand.h */,
@@ -321,10 +341,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				85095798180BC323005D5562 /* PUUtil.m in Sources */,
+				93CCECCB180CDCF9009F6884 /* UIKit+DrawingHelpers.m in Sources */,
 				9383B77C1809180F002B2C04 /* AppDelegate.m in Sources */,
 				9383B7A9180919AF002B2C04 /* ChartViewController.m in Sources */,
+				93CCECCA180CDCF9009F6884 /* UIImage+Additions.m in Sources */,
 				85095794180BC2B4005D5562 /* PChartView.m in Sources */,
+				93CCECC9180CDCF9009F6884 /* UIColor+HelperAdditions.m in Sources */,
 				850957A0180C1483005D5562 /* NSDate+Expand.m in Sources */,
+				93CCECC8180CDCF9009F6884 /* InnerShadowDrawing.m in Sources */,
 				8509579C180BC372005D5562 /* NSArray+Expand.m in Sources */,
 				9383B7781809180F002B2C04 /* main.m in Sources */,
 			);
