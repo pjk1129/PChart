@@ -70,8 +70,8 @@
 static const NSInteger kXAxisSpace = 15;
 static const NSInteger kPadding = 10;
 
-#define COLORPADDING 15
-#define kLegendPADDING 5
+static const NSInteger kLegendColorPadding = 15;
+static const NSInteger kLegendPadding = 5;
 
 @implementation LegendView
 
@@ -86,12 +86,12 @@ static const NSInteger kPadding = 10;
         UIColor *color = [self.colors objectForKey:title];
         if(color) {
             [color setFill];
-            CGContextFillEllipseInRect(c, CGRectMake(kLegendPADDING + 2, kLegendPADDING + round(y) + self.titlesFont.xHeight / 2 + 1, 6, 6));
+            CGContextFillEllipseInRect(c, CGRectMake(kLegendPadding + 2, kLegendPadding + round(y) + self.titlesFont.xHeight / 2 + 1, 6, 6));
         }
         [[UIColor whiteColor] set];
-        [title drawAtPoint:CGPointMake(COLORPADDING + kLegendPADDING, y + kLegendPADDING + 1) withFont:self.titlesFont];
+        [title drawAtPoint:CGPointMake(kLegendColorPadding + kLegendPadding, y + kLegendPadding + 1) withFont:self.titlesFont];
         [[UIColor blackColor] set];
-        [title drawAtPoint:CGPointMake(COLORPADDING + kLegendPADDING, y + kLegendPADDING) withFont:self.titlesFont];
+        [title drawAtPoint:CGPointMake(kLegendColorPadding + kLegendPadding, y + kLegendPadding) withFont:self.titlesFont];
         y += [self.titlesFont lineHeight];
     }
 }
@@ -109,7 +109,7 @@ static const NSInteger kPadding = 10;
         CGSize s = [title sizeWithFont:self.titlesFont];
         w = MAX(w, s.width);
     }
-    return CGSizeMake(COLORPADDING + w + 2 * kLegendPADDING, h + 2 * kLegendPADDING);
+    return CGSizeMake(kLegendColorPadding + w + 2 * kLegendPadding, h + 2 * kLegendPadding);
 }
 
 @end
@@ -117,6 +117,8 @@ static const NSInteger kPadding = 10;
 @interface PChartView ()
 
 @property (nonatomic, retain) LegendView   *legendView;
+@property (nonatomic, retain) UIView       *currentIndicatorLine;
+
 @end
 
 @implementation PChartView
@@ -130,6 +132,7 @@ static const NSInteger kPadding = 10;
     self.yTextColor = nil;
     self.gridLineColor = nil;
     self.legendView = nil;
+    self.currentIndicatorLine = nil;
 }
 
 - (id)initWithFrame:(CGRect)frame
@@ -147,7 +150,7 @@ static const NSInteger kPadding = 10;
         self.yTextColor = [UIColor blackColor];
         self.gridLineColor = [UIColor colorWithWhite:0.9 alpha:1.0];
         self.sizePoint = 4;
-        
+        self.currentIndicatorLine.backgroundColor = [UIColor colorWithRed:0.7 green:0.0 blue:0.0 alpha:1.0];
         [self addSubview:self.legendView];
     }
     return self;
@@ -160,6 +163,11 @@ static const NSInteger kPadding = 10;
     r.origin.x = self.frame.size.width - self.legendView.frame.size.width - 3 - kPadding;
     r.origin.y = 3 + kPadding;
     self.legendView.frame = r;
+    
+    CGRect f = self.currentIndicatorLine.frame;
+    CGFloat h = self.frame.size.height;
+    f.size.height = h - 2 * kPadding - kXAxisSpace;
+    self.currentIndicatorLine.frame = f;
     
     [self bringSubviewToFront:self.legendView];
 
@@ -270,10 +278,11 @@ static const NSInteger kPadding = 10;
 
 #pragma mark - Touch Event
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-
+    [self showIndicatorByCurrentTouch:[touches anyObject]];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    [self showIndicatorByCurrentTouch:[touches anyObject]];
 
 }
 
@@ -283,6 +292,64 @@ static const NSInteger kPadding = 10;
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
 
+}
+
+- (void)showIndicatorByCurrentTouch:(UITouch *)touch
+{
+    
+    CGPoint pos = [touch locationInView:self];
+    CGFloat xStart = kPadding + self.yAxisLabelsWidth;
+    CGFloat yStart = kPadding;
+    CGFloat yRangeLen = self.yMax - self.yMin;
+    CGFloat xPos = pos.x - xStart;
+    CGFloat yPos = pos.y - yStart;
+    CGFloat availableWidth = self.bounds.size.width - 2 * kPadding - self.yAxisLabelsWidth;
+    CGFloat availableHeight = self.bounds.size.height - 2 * kPadding - kXAxisSpace;
+    
+    LineDataItem *closest = nil;
+    float minDist = FLT_MAX;
+    float minDistY = FLT_MAX;
+    CGPoint closestPos = CGPointZero;
+    
+    for(LineData *data in self.data) {
+        float xRangeLen = data.xMax - data.xMin;
+        for(NSUInteger i = 0; i < data.itemCount; ++i) {
+            LineDataItem *datItem = data.getData(i);
+            CGFloat xVal = round((xRangeLen == 0 ? 0.5 : ((datItem.x - data.xMin) / xRangeLen)) * availableWidth);
+            CGFloat yVal = round((1.0 - (datItem.y - self.yMin) / yRangeLen) * availableHeight);
+            
+            float dist = fabsf(xVal - xPos);
+            float distY = fabsf(yVal - yPos);
+            if(dist < minDist || (dist == minDist && distY < minDistY)) {
+                minDist = dist;
+                minDistY = distY;
+                closest = datItem;
+                closestPos = CGPointMake(xStart + xVal - 3, yStart + yVal - 7);
+            }
+        }
+    }
+    
+    
+    if(self.currentIndicatorLine.alpha == 0.0) {
+        CGRect r = self.currentIndicatorLine.frame;
+        r.origin.x = closestPos.x + 3 - 1;
+        self.currentIndicatorLine.frame = r;
+    }
+    
+    [UIView animateWithDuration:0.1 animations:^{
+        self.currentIndicatorLine.alpha = 1.0;
+        
+        CGRect r = self.currentIndicatorLine.frame;
+        r.origin.x = closestPos.x + 3 - 1;
+        self.currentIndicatorLine.frame = r;
+    }];
+
+}
+
+- (void)hideIndicator {
+    [UIView animateWithDuration:0.1 animations:^{
+        self.currentIndicatorLine.alpha = 0.0;
+    }];
 }
 
 
@@ -313,6 +380,16 @@ static const NSInteger kPadding = 10;
         _legendView.backgroundColor = [UIColor clearColor];
     }
     return _legendView;
+}
+
+- (UIView *)currentIndicatorLine{
+    if (!_currentIndicatorLine) {
+        _currentIndicatorLine = [[UIView alloc] initWithFrame:CGRectMake(kPadding, kPadding, 1 / self.contentScaleFactor, 50)];
+        _currentIndicatorLine.autoresizingMask = UIViewAutoresizingFlexibleHeight;
+        _currentIndicatorLine.alpha = 0.0;
+        [self addSubview:_currentIndicatorLine];
+    }
+    return _currentIndicatorLine;
 }
 
 #pragma mark - Helper methods

@@ -64,5 +64,7 @@ typedef LineDataItem *(^LineChartDataGetter)(NSUInteger item);
 @property (nonatomic, retain) UIColor *xTextColor; // Default is [UIColor blackColor].
 @property (nonatomic, retain) UIColor *yTextColor; // Default is [UIColor blackColor].
 @property (nonatomic, retain) UIColor *gridLineColor; // Default is [UIColor colorWithWhite:0.6 alpha:1.0].
+@property (nonatomic, retain) UIColor *indicatorLineColor; // Default is [UIColor colorWithWhite:0.6 alpha:1.0].
+
 @property (nonatomic, assign) NSInteger  sizePoint; //Default is 4
 @end
