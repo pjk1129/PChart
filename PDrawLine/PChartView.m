@@ -269,7 +269,24 @@ static const NSInteger kLegendPadding = 5;
                 CGContextFillEllipseInRect(context, CGRectMake(xVal - self.sizePoint/4, yVal - self.sizePoint/4, self.sizePoint/2, self.sizePoint/2));
             } // for
         } // draw data points
+        
+        
+        //default display current data value
+        NSInteger  index = [self.data indexOfObjectIdenticalTo:data];
+        LineDataItem *datItem = data.getData(index);
+        if (datItem.dataValue) {
+            self.infoLabel.text = [NSString stringWithFormat:@"当前值: %@",datItem.dataValue];
+            [self.infoLabel sizeToFit];
+            
+            CGRect f = self.infoLabel.frame;
+            f.origin.x = self.yAxisLabelsWidth;
+            f.origin.y = 3*kPadding-self.infoLabel.frame.size.height-2;
+            self.infoLabel.frame = f;
+        }
+        
     }
+    
+    
 }
 
 
@@ -334,10 +351,6 @@ static const NSInteger kLegendPadding = 5;
         f.origin.x = self.yAxisLabelsWidth;
         f.origin.y = 3*kPadding-self.infoLabel.frame.size.height-2;
         self.infoLabel.frame = f;
-        
-        self.infoLabel.alpha = 1.0f;
-    }else{
-        self.infoLabel.alpha = 0.0f;
     }
     
     if(self.currentIndicatorLine.alpha == 0.0) {
