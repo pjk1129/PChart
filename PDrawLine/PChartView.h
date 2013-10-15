@@ -17,12 +17,12 @@ typedef LineDataItem *(^LineChartDataGetter)(NSUInteger item);
 @property (readonly) CGFloat x; // should be within the x range
 @property (readonly) CGFloat y; // should be within the y range
 @property (readonly) NSString *xLabel; // label to be shown on the x axis
-@property (readonly) NSString *dataLabel; // label to be shown directly at the data item
+@property (readonly) NSString *dataValue; // label to be shown directly at the data item
 
 + (LineDataItem *)dataItemWithX:(CGFloat)x
                               y:(CGFloat)y
                          xLabel:(NSString *)xLabel
-                      dataLabel:(NSString *)dataLabel;
+                      dataValue:(NSString *)dataValue;
 
 @end
 
@@ -45,6 +45,7 @@ typedef LineDataItem *(^LineChartDataGetter)(NSUInteger item);
 @property (nonatomic, retain) UIFont *titlesFont;
 @property (nonatomic, retain) NSArray *titles;
 @property (nonatomic, retain) NSDictionary *colors; // maps titles to UIColors
+@property (nonatomic, retain) UIColor *fillColor; // Default is [UIColor colorWithWhite:0.1 alpha:0.1].
 
 @end
 

@@ -22,12 +22,12 @@
 @property (readwrite) CGFloat x; // should be within the x range
 @property (readwrite) CGFloat y; // should be within the y range
 @property (readwrite) NSString *xLabel; // label to be shown on the x axis
-@property (readwrite) NSString *dataLabel; // label to be shown directly at the data item
+@property (readwrite) NSString *dataValue; // label to be shown directly at the data item
 
 - (id)initWithhX:(CGFloat)x
                y:(CGFloat)y
           xLabel:(NSString *)xLabel
-       dataLabel:(NSString *)dataLabel;
+       dataValue:(NSString *)dataValue;
 
 @end
 
@@ -36,13 +36,13 @@
 - (id)initWithhX:(CGFloat)x
                y:(CGFloat)y
           xLabel:(NSString *)xLabel
-       dataLabel:(NSString *)dataLabel {
+       dataValue:(NSString *)dataValue {
     self = [super init];
     if(self) {
         self.x = x;
         self.y = y;
         self.xLabel = xLabel;
-        self.dataLabel = dataLabel;
+        self.dataValue = dataValue;
     }
     return self;
 }
@@ -50,8 +50,8 @@
 + (LineDataItem *)dataItemWithX:(CGFloat)x
                               y:(CGFloat)y
                          xLabel:(NSString *)xLabel
-                      dataLabel:(NSString *)dataLabel {
-    return [[LineDataItem alloc] initWithhX:x y:y xLabel:xLabel dataLabel:dataLabel];
+                      dataValue:(NSString *)dataValue {
+    return [[LineDataItem alloc] initWithhX:x y:y xLabel:xLabel dataValue:dataValue];
 }
 
 @end
@@ -75,9 +75,18 @@ static const NSInteger kLegendPadding = 5;
 
 @implementation LegendView
 
+- (id)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.fillColor = [UIColor colorWithWhite:0.0 alpha:0.2];
+    }
+    return self;
+}
+
 - (void)drawRect:(CGRect)rect {
     CGContextRef c = UIGraphicsGetCurrentContext();
-    CGContextSetFillColorWithColor(c, [[UIColor colorWithWhite:0.0 alpha:0.1] CGColor]);
+    CGContextSetFillColorWithColor(c, [self.fillColor CGColor]);
     CGContextFillRoundedRect(c, self.bounds, 7);
     
     
@@ -118,29 +127,18 @@ static const NSInteger kLegendPadding = 5;
 
 @property (nonatomic, retain) LegendView   *legendView;
 @property (nonatomic, retain) UIView       *currentIndicatorLine;
+@property (nonatomic, retain) UILabel      *infoLabel;
 
 @end
 
 @implementation PChartView
-
-
-- (void)dealloc{
-    self.xSteps = nil;
-    self.ySteps = nil;
-    self.data = nil;
-    self.xTextColor = nil;
-    self.yTextColor = nil;
-    self.gridLineColor = nil;
-    self.legendView = nil;
-    self.currentIndicatorLine = nil;
-}
 
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
-        self.backgroundColor = [UIColor whiteColor];
+        self.backgroundColor = [UIColor greenColor];
         self.contentMode = UIViewContentModeRedraw;
         self.autoresizesSubviews = YES;
         self.scaleFont = [UIFont systemFontOfSize:10.0];
@@ -150,7 +148,7 @@ static const NSInteger kLegendPadding = 5;
         self.yTextColor = [UIColor blackColor];
         self.gridLineColor = [UIColor colorWithWhite:0.9 alpha:1.0];
         self.sizePoint = 4;
-        self.currentIndicatorLine.backgroundColor = [UIColor colorWithRed:0.7 green:0.0 blue:0.0 alpha:1.0];
+        self.currentIndicatorLine.backgroundColor = [UIColor redColor];
         [self addSubview:self.legendView];
     }
     return self;
@@ -166,9 +164,9 @@ static const NSInteger kLegendPadding = 5;
     
     CGRect f = self.currentIndicatorLine.frame;
     CGFloat h = self.frame.size.height;
-    f.size.height = h - 2 * kPadding - kXAxisSpace;
+    f.size.height = h - 4 * kPadding - kXAxisSpace;
     self.currentIndicatorLine.frame = f;
-    
+
     [self bringSubviewToFront:self.legendView];
 
 }
@@ -178,40 +176,39 @@ static const NSInteger kLegendPadding = 5;
     // Drawing code
     CGContextRef context = UIGraphicsGetCurrentContext();
     
-    CGFloat availableHeight = self.bounds.size.height - 2 * kPadding - kXAxisSpace;
+    CGFloat availableHeight = self.bounds.size.height - 4 * kPadding - kXAxisSpace;
     
-    CGFloat availableWidth = self.bounds.size.width - 2 * kPadding - self.yAxisLabelsWidth;
-    CGFloat xStart = kPadding + self.yAxisLabelsWidth;
-    CGFloat yStart = kPadding;
+    CGFloat availableWidth = self.bounds.size.width - kPadding - self.yAxisLabelsWidth;
+    CGFloat xStart = self.yAxisLabelsWidth;
+    CGFloat yStart = 3*kPadding;
     
     static CGFloat dashedPattern[] = {4,2};
     
-    // draw scale and horizontal lines
-    CGFloat heightPerStep = self.ySteps == nil || [self.ySteps count] == 0 ? availableHeight : (availableHeight / ([self.ySteps count] - 1));
+    
+    CGFloat heightPerStep = (self.ySteps == nil || [self.ySteps count] == 0) ? availableHeight : (availableHeight / ([self.ySteps count] - 1));
     
     NSUInteger i = 0;
     CGContextSaveGState(context);
     CGContextSetLineWidth(context, 1.0);
+    CGContextSetLineDash(context, 0, dashedPattern, 2);
     NSUInteger yCnt = [self.ySteps count];
     for(NSString *step in self.ySteps) {
         CGFloat h = [self.scaleFont lineHeight];
         CGFloat y = yStart + heightPerStep * (yCnt - 1 - i);
         [self.yTextColor set];
-        [step drawInRect:CGRectMake(yStart, y - h / 2, self.yAxisLabelsWidth - 6, h) withFont:self.scaleFont lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentRight];
+        [step drawInRect:CGRectMake(xStart-self.yAxisLabelsWidth + 4, y - h / 2, self.yAxisLabelsWidth - 6, h) withFont:self.scaleFont lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentRight];
         
         [self.gridLineColor set];
-        CGContextSetLineDash(context, 0, dashedPattern, 2);
         CGContextMoveToPoint(context, xStart, round(y) + 0.5);
         CGContextAddLineToPoint(context, self.bounds.size.width - kPadding, round(y) + 0.5);
         CGContextStrokePath(context);
         i++;
-    }
+    }// draw scale and horizontal lines
     
-    // draw scale and vertical lines
+    
     NSUInteger xCnt = [self.xSteps count];
     if(xCnt > 1) {
         CGFloat widthPerStep = availableWidth / (xCnt - 1);
-        
         for(NSUInteger i = 0; i < xCnt; ++i) {
             CGFloat x = xStart + widthPerStep * (xCnt - 1 - i);
             CGFloat h = [self.scaleFont lineHeight];
@@ -221,12 +218,12 @@ static const NSInteger kLegendPadding = 5;
             [step drawInRect:CGRectMake(x-w/2, yStart + availableHeight+2, w, h) withFont:self.scaleFont lineBreakMode:NSLineBreakByClipping alignment:NSTextAlignmentRight];
             
             [self.gridLineColor set];
-            CGContextMoveToPoint(context, round(x) + 0.5, kPadding);
+            CGContextMoveToPoint(context, round(x) + 0.5, yStart);
             CGContextAddLineToPoint(context, round(x) + 0.5, yStart + availableHeight);
             CGContextStrokePath(context);
             
         }
-    }
+    }// draw scale and vertical lines
     
     CGContextRestoreGState(context);
     
@@ -287,24 +284,24 @@ static const NSInteger kLegendPadding = 5;
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-
+    [self hideIndicator];
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
-
+    [self hideIndicator];
 }
 
 - (void)showIndicatorByCurrentTouch:(UITouch *)touch
 {
     
     CGPoint pos = [touch locationInView:self];
-    CGFloat xStart = kPadding + self.yAxisLabelsWidth;
-    CGFloat yStart = kPadding;
+    CGFloat xStart = self.yAxisLabelsWidth;
+    CGFloat yStart = 3*kPadding;
     CGFloat yRangeLen = self.yMax - self.yMin;
     CGFloat xPos = pos.x - xStart;
     CGFloat yPos = pos.y - yStart;
-    CGFloat availableWidth = self.bounds.size.width - 2 * kPadding - self.yAxisLabelsWidth;
-    CGFloat availableHeight = self.bounds.size.height - 2 * kPadding - kXAxisSpace;
+    CGFloat availableWidth = self.bounds.size.width - kPadding - self.yAxisLabelsWidth;
+    CGFloat availableHeight = self.bounds.size.height - 4 * kPadding - kXAxisSpace;
     
     LineDataItem *closest = nil;
     float minDist = FLT_MAX;
@@ -329,6 +326,19 @@ static const NSInteger kLegendPadding = 5;
         }
     }
     
+    if (closest.dataValue) {
+        self.infoLabel.text = [NSString stringWithFormat:@"当前值: %@",closest.dataValue];
+        [self.infoLabel sizeToFit];
+        
+        CGRect f = self.infoLabel.frame;
+        f.origin.x = self.yAxisLabelsWidth;
+        f.origin.y = 3*kPadding-self.infoLabel.frame.size.height-2;
+        self.infoLabel.frame = f;
+        
+        self.infoLabel.alpha = 1.0f;
+    }else{
+        self.infoLabel.alpha = 0.0f;
+    }
     
     if(self.currentIndicatorLine.alpha == 0.0) {
         CGRect r = self.currentIndicatorLine.frame;
@@ -338,7 +348,7 @@ static const NSInteger kLegendPadding = 5;
     
     [UIView animateWithDuration:0.1 animations:^{
         self.currentIndicatorLine.alpha = 1.0;
-        
+
         CGRect r = self.currentIndicatorLine.frame;
         r.origin.x = closestPos.x + 3 - 1;
         self.currentIndicatorLine.frame = r;
@@ -384,12 +394,24 @@ static const NSInteger kLegendPadding = 5;
 
 - (UIView *)currentIndicatorLine{
     if (!_currentIndicatorLine) {
-        _currentIndicatorLine = [[UIView alloc] initWithFrame:CGRectMake(kPadding, kPadding, 1 / self.contentScaleFactor, 50)];
+        _currentIndicatorLine = [[UIView alloc] initWithFrame:CGRectMake(kPadding, 3*kPadding, 2 / self.contentScaleFactor, 50)];
         _currentIndicatorLine.autoresizingMask = UIViewAutoresizingFlexibleHeight;
         _currentIndicatorLine.alpha = 0.0;
         [self addSubview:_currentIndicatorLine];
     }
     return _currentIndicatorLine;
+}
+
+- (UILabel *)infoLabel{
+    if (!_infoLabel) {
+        _infoLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+        _infoLabel.backgroundColor = [UIColor clearColor];
+        _infoLabel.textAlignment = NSTextAlignmentLeft;
+        _infoLabel.textColor = [UIColor grayColor];
+        _infoLabel.font = [UIFont systemFontOfSize:10];
+        [self addSubview:_infoLabel];
+    }
+    return _infoLabel;
 }
 
 #pragma mark - Helper methods
