@@ -17,52 +17,18 @@
 #define PCVLog(xx, ...)  ((void)0)
 #endif
 
-@interface LineDataItem ()
-
-@property (readwrite) CGFloat x; // should be within the x range
-@property (readwrite) CGFloat y; // should be within the y range
-@property (readwrite) NSString *xLabel; // label to be shown on the x axis
-@property (readwrite) NSString *dataValue; // label to be shown directly at the data item
-
-- (id)initWithhX:(CGFloat)x
-               y:(CGFloat)y
-          xLabel:(NSString *)xLabel
-       dataValue:(NSString *)dataValue;
-
-@end
-
 @implementation LineDataItem
-
-- (id)initWithhX:(CGFloat)x
-               y:(CGFloat)y
-          xLabel:(NSString *)xLabel
-       dataValue:(NSString *)dataValue {
-    self = [super init];
-    if(self) {
-        self.x = x;
-        self.y = y;
-        self.xLabel = xLabel;
-        self.dataValue = dataValue;
-    }
-    return self;
-}
-
-+ (LineDataItem *)dataItemWithX:(CGFloat)x
-                              y:(CGFloat)y
-                         xLabel:(NSString *)xLabel
-                      dataValue:(NSString *)dataValue {
-    return [[LineDataItem alloc] initWithhX:x y:y xLabel:xLabel dataValue:dataValue];
-}
 
 @end
 
 @implementation LineData
-@synthesize color = _color;
-@synthesize itemCount = _itemCount;
-@synthesize xMax = _xMax;
-@synthesize xMin = _xMin;
-@synthesize title = _title;
-@synthesize getData = _getData;
+
+- (NSMutableArray *)dataArray{
+    if (!_dataArray) {
+        _dataArray = [[NSMutableArray alloc] init];
+    }
+    return _dataArray;
+}
 
 @end
 
@@ -138,7 +104,7 @@ static const NSInteger kLegendPadding = 5;
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
-        self.backgroundColor = [UIColor greenColor];
+        self.backgroundColor = [UIColor clearColor];
         self.contentMode = UIViewContentModeRedraw;
         self.autoresizesSubviews = YES;
         self.scaleFont = [UIFont systemFontOfSize:10.0];
@@ -236,13 +202,13 @@ static const NSInteger kLegendPadding = 5;
         if (self.drawsDataLines) {
             float xRangeLen = data.xMax - data.xMin;
             if(data.itemCount >= 2) {
-                LineDataItem *datItem = data.getData(0);
+                LineDataItem *datItem = [data.dataArray objectAtIndex:0];
                 CGMutablePathRef path = CGPathCreateMutable();
                 CGPathMoveToPoint(path, NULL,
                                   xStart + round(((datItem.x - data.xMin) / xRangeLen) * availableWidth),
                                   yStart + round((1.0 - (datItem.y - self.yMin) / yRangeLen) * availableHeight));
                 for(NSUInteger i = 1; i < data.itemCount; ++i) {
-                    LineDataItem *item = data.getData(i);
+                    LineDataItem *item = [data.dataArray objectAtIndex:i];
                     CGPathAddLineToPoint(path, NULL,
                                          xStart + round(((item.x - data.xMin) / xRangeLen) * availableWidth),
                                          yStart + round((1.0 - (item.y - self.yMin) / yRangeLen) * availableHeight));
@@ -260,7 +226,7 @@ static const NSInteger kLegendPadding = 5;
         if (self.drawsDataPoints) {
             float xRangeLen = data.xMax - data.xMin;
             for(NSUInteger i = 0; i < data.itemCount; ++i) {
-                LineDataItem *datItem = data.getData(i);
+                LineDataItem *datItem = [data.dataArray objectAtIndex:i];
                 CGFloat xVal = xStart + round((xRangeLen == 0 ? 0.5 : ((datItem.x - data.xMin) / xRangeLen)) * availableWidth);
                 CGFloat yVal = yStart + round((1.0 - (datItem.y - self.yMin) / yRangeLen) * availableHeight);
                 [data.color setFill];
@@ -273,15 +239,17 @@ static const NSInteger kLegendPadding = 5;
         
         //default display current data value
         NSInteger  index = [self.data indexOfObjectIdenticalTo:data];
-        LineDataItem *datItem = data.getData(index);
-        if (datItem.dataValue) {
-            self.infoLabel.text = [NSString stringWithFormat:@"当前值: %@",datItem.dataValue];
-            [self.infoLabel sizeToFit];
-            
-            CGRect f = self.infoLabel.frame;
-            f.origin.x = self.yAxisLabelsWidth;
-            f.origin.y = 3*kPadding-self.infoLabel.frame.size.height-2;
-            self.infoLabel.frame = f;
+        if (index == 0) {
+            LineDataItem *datItem = [data.dataArray objectAtIndex:index];
+            if (datItem.dataValue) {
+                self.infoLabel.text = [NSString stringWithFormat:@"当前值: %@",datItem.dataValue];
+                [self.infoLabel sizeToFit];
+                
+                CGRect f = self.infoLabel.frame;
+                f.origin.x = self.yAxisLabelsWidth;
+                f.origin.y = 3*kPadding-self.infoLabel.frame.size.height-2;
+                self.infoLabel.frame = f;
+            }
         }
         
     }
@@ -328,7 +296,7 @@ static const NSInteger kLegendPadding = 5;
     for(LineData *data in self.data) {
         float xRangeLen = data.xMax - data.xMin;
         for(NSUInteger i = 0; i < data.itemCount; ++i) {
-            LineDataItem *datItem = data.getData(i);
+            LineDataItem *datItem = [data.dataArray objectAtIndex:i];
             CGFloat xVal = round((xRangeLen == 0 ? 0.5 : ((datItem.x - data.xMin) / xRangeLen)) * availableWidth);
             CGFloat yVal = round((1.0 - (datItem.y - self.yMin) / yRangeLen) * availableHeight);
             

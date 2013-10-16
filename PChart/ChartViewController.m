@@ -32,36 +32,20 @@
     self.title = @"Chart";
 
     LineData  *data = [[LineData alloc] init];
-    NSDate *date1 = [[NSDate date] dateByAddingDays:(-2)];
-    NSDate *date2 = [[NSDate date] dateByAddingDays:2];
-    data.xMin = [date1 timeIntervalSinceReferenceDate];
-    data.xMax = [date2 timeIntervalSinceReferenceDate];
+    data.xMin = 0;
+    data.xMax = 16;
     data.title = @"今天";
     data.color = [UIColor grayColor];
     data.itemCount = 9;
-    NSMutableArray *arr = [NSMutableArray array];
-    for(NSUInteger i = 0; i < data.itemCount - 2; i++) {
-        [arr addObject:@(data.xMin + (rand() / (float)RAND_MAX) * (data.xMax - data.xMin))];
-    }
-    [arr addObject:@(data.xMin)];
-    [arr addObject:@(data.xMax)];
     
-    [arr sortUsingComparator:^NSComparisonResult(id obj1, id obj2) {
-        return [obj1 compare:obj2];
-    }];
-    NSMutableArray *arr2 = [NSMutableArray array];
-    for(NSUInteger i = 0; i < data.itemCount; i++) {
-        [arr2 addObject:@((rand() / (float)RAND_MAX) * 6)];
+    for (NSInteger i=0; i<data.itemCount; i++) {
+        LineDataItem  *item = [[LineDataItem alloc] init];
+        item.x = data.xMin + i +1;
+        item.y = i;
+        item.xLabel = [NSString stringWithFormat:@"%f", item.x];
+        item.dataValue = [NSString stringWithFormat:@"%f", item.y];
+        [data.dataArray addObject:item];
     }
-    data.getData = ^(NSUInteger item) {
-        float x = [arr[item] floatValue];
-        float y = [arr2[item] floatValue];
-        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-        [formatter setDateFormat:@"yyyy-MM-dd"];
-        NSString *label1 = [formatter stringFromDate:[date1 dateByAddingTimeInterval:x]];
-        NSString *label2 = [NSString stringWithFormat:@"%f", y];
-        return [LineDataItem dataItemWithX:x y:y xLabel:label1 dataValue:label2];
-    };
 
     self.chartView.xTextColor = [UIColor grayColor];
     self.chartView.yTextColor = [UIColor magentaColor];
